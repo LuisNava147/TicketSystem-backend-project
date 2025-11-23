@@ -1,26 +1,64 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Route } from './entities/route.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class RoutesService {
-  create(createRouteDto: CreateRouteDto) {
-    return 'This action adds a new route';
+  constructor(
+    @InjectRepository(Route)
+    private readonly routeRepository: Repository<Route>
+  ){}
+  async create(createRouteDto: CreateRouteDto) {
+    if(createRouteDto.origin==createRouteDto.destination){
+      throw new BadRequestException('El origen y el destino no pueden ser el mismo lugar')
+    }
+    const route = this.routeRepository.create({
+      routeBasePrice:createRouteDto.routeBasePrice,
+      routeEstimateDuration: createRouteDto.routeEstimateDuration,
+      origin: {locationId: createRouteDto.origin},
+      destination: {locationId: createRouteDto.destination}
+
+    });
+    return await this.routeRepository.save(route);
   }
 
   findAll() {
-    return `This action returns all routes`;
+    return this.routeRepository.find({
+      relations:['origin','destination']
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} route`;
+  findOne(id: string) {
+    const route = this.routeRepository.findOne({
+      where: {routeId:id},
+      relations:['origin','destination']
+    })
+    if(!route)throw new NotFoundException('Ruta no encontrada')
+    return route;
   }
 
-  update(id: number, updateRouteDto: UpdateRouteDto) {
-    return `This action updates a #${id} route`;
+  async update(id: string, updateRouteDto: UpdateRouteDto) {
+    const route = await this.routeRepository.preload({
+      routeId:id,
+      ...updateRouteDto, 
+      origin: updateRouteDto.origin ? {locationId: updateRouteDto.origin} : undefined ,
+      destination: updateRouteDto.destination ? {locationId: updateRouteDto.destination} : undefined,
+    })
+    if(!route)throw new NotFoundException('Ruta no encontrada ')
+    return this.routeRepository.save(route);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} route`;
+  async remove(id: string) {
+    this.findOne(id);
+    await this.routeRepository.delete({
+      routeId:id
+    })
+    return(
+      "Ruta eliminada"
+    );
+
   }
 }
