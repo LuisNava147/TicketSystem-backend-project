@@ -1,15 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Trip } from './entities/trip.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TripsService {
-  create(createTripDto: CreateTripDto) {
-    return 'This action adds a new trip';
+  constructor(
+    @InjectRepository(Trip)
+    private readonly tripRepository : Repository<Trip>,
+  ){}
+
+  async create(createTripDto: CreateTripDto) {
+    const trip = this.tripRepository.create({
+      tripDepartureDate: createTripDto.tripDepartureDate,
+      route:{routeId: createTripDto.routeId},
+      bus:{busId: createTripDto.busId},
+      tripStatus: 'SCHEDULED'
+    })
+    return await this.tripRepository.save(trip);
   }
 
   findAll() {
-    return `This action returns all trips`;
+    return this.tripRepository.find({
+      relations: ['route', 'route.origin','route.destination','bus'],
+      order: {tripDepartureDate:'ASC'}
+    })
   }
 
   findOne(id: number) {
