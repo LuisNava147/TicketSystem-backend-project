@@ -17,7 +17,7 @@ export class Ticket {
         name:"tripId"
     })
     trip: Trip
-    @ManyToOne(()=> User)
+    @ManyToOne(()=> User, (user)=> user.ticket)
     @JoinColumn({
         name:"userId"
     })

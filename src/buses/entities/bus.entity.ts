@@ -15,7 +15,7 @@ busCapacity: number
 @JoinColumn({
     name:"tripId"
 })
-trips:Trip[]
+trip:Trip[]
 
 
 }

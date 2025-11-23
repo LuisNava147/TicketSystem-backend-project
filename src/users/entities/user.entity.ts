@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Ticket } from "src/tickets/entities/ticket.entity";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -21,5 +22,6 @@ export class User {
     @CreateDateColumn()
     updateAt: Date
 
-
+    @OneToMany(()=> Ticket, (ticket)=> ticket.user)
+    ticket: Ticket[]
 }

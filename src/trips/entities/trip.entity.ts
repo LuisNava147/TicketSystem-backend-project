@@ -1,6 +1,7 @@
 import { Bus } from "src/buses/entities/bus.entity";
 import { Route } from "src/routes/entities/route.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Ticket } from "src/tickets/entities/ticket.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Trip {
@@ -16,9 +17,11 @@ export class Trip {
         name:"routeId"
     })
     route: Route
-    @ManyToOne(()=> Bus, (bus)=> bus.trips, {eager:true})
+    @ManyToOne(()=> Bus, (bus)=> bus.trip, {eager:true})
     @JoinColumn({
         name: "busId"
     })
     bus: Bus
+    @OneToMany(()=>Ticket,(ticket)=> ticket.trip)
+    ticket: Ticket[]
 }

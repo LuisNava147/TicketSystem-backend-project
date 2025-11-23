@@ -1,5 +1,6 @@
 import { Location } from "src/locations/entities/location.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Trip } from "src/trips/entities/trip.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Route {
@@ -10,14 +11,16 @@ export class Route {
     @Column('int')
     routeEstimateDuration: number
 
-    @ManyToOne(()=> Location, {eager:true})
+    @ManyToOne(()=> Location, (location)=> location.departingRoutes, {eager:true})
     @JoinColumn({
         name:"originLocation"
     })
     origin: Location
-    @ManyToOne(()=> Location, {eager:true})
+    @ManyToOne(()=> Location,(location)=> location.arrivingRoutes, {eager:true})
     @JoinColumn({
         name:"destinationLocation"
     })
     destination: Location
+    @OneToMany(()=>Trip,(trip)=> trip.route)
+    trip: Trip[]
 }
