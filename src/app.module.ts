@@ -18,7 +18,7 @@ import { ConfigModule } from "@nestjs/config";
       host: process.env.host,
       port: 5438,
       username: "postgres",
-      password: "BD2023",
+      password: process.env.pass,
       database: process.env.name,
       entities:[],
       autoLoadEntities: true,
@@ -28,9 +28,9 @@ import { ConfigModule } from "@nestjs/config";
     LocationsModule,
     BusesModule,
     RoutesModule,
-    TripsModule,
+    TripsModule,  
     TicketsModule,],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
