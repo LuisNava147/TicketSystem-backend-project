@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Location {
@@ -6,4 +6,5 @@ export class Location {
     locationId: number
     @Column('text',{unique:true})
     locationName: string
+
 }

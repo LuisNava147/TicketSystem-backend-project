@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Trip } from "src/trips/entities/trip.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity()
@@ -9,6 +10,12 @@ busId: string
 busPlateNumber: string
 @Column('int')
 busCapacity: number
+
+@OneToMany(()=> Trip, (trip)=> trip.bus)
+@JoinColumn({
+    name:"tripId"
+})
+trips:Trip[]
 
 
 }

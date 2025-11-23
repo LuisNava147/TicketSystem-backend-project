@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Location } from "src/locations/entities/location.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Route {
@@ -8,4 +9,15 @@ export class Route {
     routeBasePrice: number;
     @Column('int')
     routeEstimateDuration: number
+
+    @ManyToOne(()=> Location, {eager:true})
+    @JoinColumn({
+        name:"originLocation"
+    })
+    origin: Location
+    @ManyToOne(()=> Location, {eager:true})
+    @JoinColumn({
+        name:"destinationLocation"
+    })
+    destination: Location
 }
