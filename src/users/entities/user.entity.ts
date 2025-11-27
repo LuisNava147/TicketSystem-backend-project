@@ -12,7 +12,7 @@ export class User {
     @Column('text',{select:false})
     userPassword: string
     @Column('text',{array:true,default:['client']})
-    roles: string[]
+    roles?: string[]
     @Column('bool',{default:true})
     isActive:boolean
     @Column('text',{nullable:true})
