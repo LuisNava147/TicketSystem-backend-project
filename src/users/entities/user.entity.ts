@@ -20,7 +20,7 @@ export class User {
     @CreateDateColumn()
     createdAt: Date
     @CreateDateColumn()
-    updateAt: Date
+    updatedAt: Date
 
     @OneToMany(()=> Ticket, (ticket)=> ticket.user)
     ticket: Ticket[]

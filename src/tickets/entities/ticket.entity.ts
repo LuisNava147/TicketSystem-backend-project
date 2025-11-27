@@ -9,7 +9,7 @@ export class Ticket {
     ticketId: string
     @Column('int')
     ticketSeatNumber: number
-    @Column('text',{default:'RESERVED'})
+    @Column('text')
     ticketStatus: string
 
     @ManyToOne(()=> Trip)
