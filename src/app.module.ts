@@ -9,6 +9,7 @@ import { RoutesModule } from './routes/routes.module';
 import { TripsModule } from './trips/trips.module';
 import { TicketsModule } from './tickets/tickets.module';
 import { ConfigModule } from "@nestjs/config";
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { ConfigModule } from "@nestjs/config";
     BusesModule,
     RoutesModule,
     TripsModule,  
-    TicketsModule,],
+    TicketsModule, AuthModule,],
   controllers: [],
   providers: [],
 })

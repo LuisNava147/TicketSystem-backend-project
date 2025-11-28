@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -17,10 +17,7 @@ export class UsersService {
     try{
       const {userPassword, ...userData} = createUserDto;
 
-      const user = this.userReposity.create({
-        ...userData,
-        userPassword: bcrypt.hashSync(userPassword, 10),
-      })
+      const user = this.userReposity.create(createUserDto)
       return await this.userReposity.save(user);
     }catch(error){
       this.handleDBErrors(error); 
@@ -71,5 +68,13 @@ export class UsersService {
         throw new BadRequestException('El correo electronico ya está registrado');
       }
       throw new InternalServerErrorException('Error al eliminar el usuario')
+  }
+
+  async findOneByEmail(email:string){
+    
+    return this.userReposity.findOne({
+      where:{userEmail: email},
+      select: ['userId','userEmail','userPassword','userFullName','roles']
+    })
   }
 }
