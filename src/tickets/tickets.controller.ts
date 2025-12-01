@@ -1,38 +1,58 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards, Query, Request } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { ParseUUIDPipe } from '@nestjs/common/pipes';
-import { UseGuards } from '@nestjs/common/decorators';
 import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/auth/decorators/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('tickets')
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt')) 
   create(@Body() createTicketDto: CreateTicketDto) {
     return this.ticketsService.create(createTicketDto);
   }
 
-  @Get()
-  findAll() {
-    return this.ticketsService.findAll();
+  @Get('mine')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles('Client')
+  findMine(@Request() req) {
+
+    const id = req.user.userId || req.user.id;
+    return this.ticketsService.findMyTickets(id);
   }
 
+ 
+  @Get()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('Admin')
+  findAll(@Query('term') term?: string) {
+    return this.ticketsService.findAll(term);
+  }
+
+
   @Get(':id')
-  findOne(@Param('id',ParseUUIDPipe) id: string) {
+  @UseGuards(AuthGuard('jwt'))
+  @Roles('Client')
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.ticketsService.findOne(id);
   }
 
+
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
+  @UseGuards(AuthGuard('jwt')) 
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateTicketDto: UpdateTicketDto) {
     return this.ticketsService.update(id, updateTicketDto);
   }
 
+
   @Delete(':id')
-  remove(@Param('id',ParseUUIDPipe) id: string) {
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('Admin')
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.ticketsService.remove(id);
   }
 }

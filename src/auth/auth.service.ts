@@ -10,10 +10,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { NotFoundError } from 'rxjs';
+import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService 
   ){}
@@ -54,11 +57,30 @@ export class AuthService {
       return{
         access_token: await this.jwtService.signAsync(payload),
         user:{
-          id: user.userId,
-          email: user.userEmail,
-          fullName: user.userFullName
+          userId: user.userId,
+          userEmail: user.userEmail,
+          userFullName: user.userFullName,
+          roles: user.roles,
+          indetifyDocumentUrl: user.indetifyDocumentUrl
+
         }
       }
 
+    }
+    async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    
+      // 👇 AGREGA ESTE IF. Solo entra si existe el password.
+      if (updateUserDto.userPassword) {
+        updateUserDto.userPassword = bcrypt.hashSync(updateUserDto.userPassword, 10);
+      }
+  
+      const newUserData = await this.userRepository.preload({
+        userId: id,
+        ...updateUserDto
+      });
+  
+      if (!newUserData) throw new NotFoundException("Usuario no encontrado");
+      
+      return this.userRepository.save(newUserData);
     }
   }

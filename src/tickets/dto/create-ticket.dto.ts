@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsPositive, IsUUID } from "class-validator";
+import { IsInt, IsOptional, IsPositive, IsUUID,IsIn, IsString } from "class-validator";
 
 export class CreateTicketDto {
     @IsUUID()
@@ -9,4 +9,8 @@ export class CreateTicketDto {
     @IsInt()
     @IsPositive()
     ticketSeatNumber: number
+    @IsOptional()
+    @IsString()
+    @IsIn(['RESERVED', 'PAID', 'CANCELLED']) 
+  ticketStatus?: string;
 }

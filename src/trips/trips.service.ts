@@ -24,7 +24,7 @@ export class TripsService {
   }
 
   async findAll(origin?:number, destination?:number) {
-    const whereClause:any = {tripStatus: 'SCHEDULED'};
+    const whereClause: any = {};
     if(origin){
       whereClause.route= {
         ...whereClause.route,

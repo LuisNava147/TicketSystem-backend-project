@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Ticket } from './entities/ticket.entity';
 import { Repository } from 'typeorm';
 import { Trip } from 'src/trips/entities/trip.entity';
+import { ILike } from 'typeorm';
 
 @Injectable()
 export class TicketsService {
@@ -45,33 +46,50 @@ export class TicketsService {
   }
 
 
-  findAll() {
+  // MÉTODO PARA CLIENTE (Mis Boletos)
+  async findMyTickets(id: string) {
     return this.ticketRepository.find({
-      relations:[
-        'trip',
-        'trip.bus',
-        'trip.route',
-        'trip.route.origin',
+      // Usamos 'userId' porque así se llama en tu Entidad User personalizada
+      where: { user: { userId: id } } as any, 
+      
+      relations: [
+        'trip', 
+        'trip.bus', 
+        'trip.route', 
+        'trip.route.origin', 
         'trip.route.destination',
         'user'
-    ]
+      ],
+      order: { ticketSeatNumber: 'ASC' } 
     });
   }
 
-  async findOne(id: string) {
-    const ticket = await this.ticketRepository.findOne({
-      where:{ticketId: id},
+  // MÉTODO PARA ADMIN (Todos los boletos + Búsqueda)
+  async findAll(term?: string) {
+    let whereOption: any = {};
+
+    if (term) {
+      whereOption = [
+        // Búsqueda por nombre (userFullName)
+        { user: { userFullName: ILike(`%${term}%`) } },
+        // Búsqueda por email (userEmail)
+        { user: { userEmail: ILike(`%${term}%`) } }
+      ];
+
+      // Si es UUID, buscamos por ID del ticket
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(term);
+      if (isUUID) {
+        whereOption.push({ ticketId: term }); // Tu nombre ticketId
+      }
+    }
+
+    return this.ticketRepository.find({
+      where: whereOption,
       relations: [
-        'trip',
-        'trip.bus',
-        'trip.route',
-        'trip.route.origin',
-        'trip.route.destination',
-        'user'
-      ]
-    })
-    if(!ticket)throw new NotFoundException('Ticket no encontrado')
-    return ticket;
+        'trip', 'trip.bus', 'trip.route', 'trip.route.origin', 'trip.route.destination', 'user'
+      ],
+      order: { ticketSeatNumber: 'ASC' }
+    });
   }
 
   async update(id: string, updateTicketDto: UpdateTicketDto) {
@@ -110,4 +128,21 @@ export class TicketsService {
       message: `Ticket ${id} eliminado y asiento liberado`
     }
   }
+  async findOne(id: string) {
+    const ticket = await this.ticketRepository.findOne({
+      where: { ticketId: id } as any, // Usamos tu nombre de variable
+      relations: [
+        'trip', 
+        'trip.bus', 
+        'trip.route', 
+        'trip.route.origin', 
+        'trip.route.destination', 
+        'user'
+      ]
+    });
+
+    if (!ticket) throw new NotFoundException(`Ticket con ID ${id} no encontrado`);
+    return ticket;
+  }
+ 
 }

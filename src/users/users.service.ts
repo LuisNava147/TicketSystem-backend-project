@@ -84,7 +84,7 @@ export class UsersService {
     
     return this.userReposity.findOne({
       where:{userEmail: email},
-      select: ['userId','userEmail','userPassword','userFullName','roles']
+      select: ['userId','userEmail','userPassword','userFullName','roles','indetifyDocumentUrl']
     })
   }
 
